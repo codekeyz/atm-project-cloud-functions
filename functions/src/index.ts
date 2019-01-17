@@ -19,9 +19,9 @@ export const newATCheckSubscription = functions.database
         if (hassub === true) {
           return activateATMStatus(snap.key);
         } else {
-          return null;
+          return console.log(
+            event.auth.uid + " haven't subscribed to any packge."
+          );
         }
       });
   });
-
-  
