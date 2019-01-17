@@ -9,10 +9,14 @@ export async function hasSubscription(bankID: string) {
   });
   if (bankPackage.length === 0) {
     return false;
+  } else {
+    bankPackage.forEach(pac => {
+      if (!pac.isActivated || pac.hasExpired) {
+        return false;
+      } else {
+        return true;
+      }
+    });
   }
-  bankPackage.forEach(pac => {
-    if (!pac.isActivated || pac.hasExpired) {
-      return false;
-    }
-  });
+  return false;
 }

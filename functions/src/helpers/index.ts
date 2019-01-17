@@ -8,8 +8,8 @@ export function getbankPackages(bankId: string) {
     .once('value');
 }
 
-export function updateBankATMCount(bankId: string) {
-  return getbankATMCount(bankId).then(number => {
+export async function updateBankATMCount(bankId: string) {
+  return await getbankATMCount(bankId).then(number => {
     return databaseInstance
       .ref(bankId)
       .child(DatabaseRefs.bank_atmcount)

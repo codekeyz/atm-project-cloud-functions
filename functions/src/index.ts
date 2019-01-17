@@ -8,7 +8,7 @@ admin.initializeApp(functions.config().firebase);
 
 export const databaseInstance = admin.database();
 
-export const newATCheckSubscription = functions.database
+export const newATMCheckSubscription = functions.database
   .ref(DatabaseRefs.atms)
   .onCreate((snap, event) => {
     return updateBankATMCount(event.auth.uid)
