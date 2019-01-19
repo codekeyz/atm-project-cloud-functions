@@ -8,3 +8,14 @@ export async function getBankData(
     .get();
   return bankData.data();
 }
+
+export async function getATMCount(
+  database: FirebaseFirestore.Firestore,
+  bankId: string
+) {
+  const atms = await database
+    .collection('ATMS')
+    .where('bank_id', '==', bankId)
+    .get();
+  return atms.size;
+}

@@ -16,3 +16,12 @@ export const newSubscription = functions.firestore
       newCanAddNumber
     );
   });
+
+export const newATMCheck = functions.firestore
+  .document('ATMS/{atmID}')
+  .onCreate((snap, event) => {
+    return subscriptionFunctions.updateATMCount(
+      databaseInstance,
+      snap.data().bank_id
+    );
+  });
