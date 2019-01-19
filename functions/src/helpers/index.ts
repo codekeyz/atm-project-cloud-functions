@@ -19,3 +19,16 @@ export async function getATMCount(
     .get();
   return atms.size;
 }
+
+export async function activateATM(
+  database: FirebaseFirestore.Firestore,
+  atmID: string
+) {
+  const dataMap = {};
+  dataMap['isEnabled'] = true;
+  await database
+    .collection('ATMS')
+    .doc(atmID)
+    .update(dataMap);
+  return true;
+}

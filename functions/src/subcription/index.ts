@@ -22,8 +22,23 @@ export async function updateATMCount(
   const count = await getATMCount(database, bankId);
   const dataMap = {};
   dataMap['numberOFATMs'] = count;
-  return database
+  await database
     .collection('Banks')
     .doc(bankId)
     .update(dataMap);
+  return count;
+}
+
+export async function hasSubscription(
+  database: FirebaseFirestore.Firestore,
+  bankId: string,
+  newATMCount: number
+) {
+  const bankData = await getBankData(database, bankId);
+  const canAddNumber: number = bankData.numberOFATMCanAdd;
+  if (newATMCount <= canAddNumber) {
+    return true;
+  } else {
+    return false;
+  }
 }

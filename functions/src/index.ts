@@ -1,6 +1,7 @@
 import * as functions from 'firebase-functions';
 import * as admin from 'firebase-admin';
 import * as subscriptionFunctions from './subcription/index';
+import { activateATM } from './helpers';
 
 admin.initializeApp(functions.config().firebase);
 
@@ -20,8 +21,23 @@ export const newSubscription = functions.firestore
 export const newATMCheck = functions.firestore
   .document('ATMS/{atmID}')
   .onCreate((snap, event) => {
-    return subscriptionFunctions.updateATMCount(
-      databaseInstance,
-      snap.data().bank_id
-    );
+    const bankID = snap.data().bank_id;
+    const atmID = event.params.atmID;
+
+    return subscriptionFunctions
+      .updateATMCount(databaseInstance, bankID)
+      .then(count => {
+        return subscriptionFunctions.hasSubscription(
+          databaseInstance,
+          bankID,
+          count
+        );
+      })
+      .then(hasSub => {
+        if (hasSub) {
+          return activateATM(databaseInstance, atmID);
+        } else {
+          return false;
+        }
+      });
   });
