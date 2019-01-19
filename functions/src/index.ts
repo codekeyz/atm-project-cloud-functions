@@ -41,3 +41,10 @@ export const newATMCheck = functions.firestore
         }
       });
   });
+
+export const atmDelete = functions.firestore
+  .document('ATMS/{atmID}')
+  .onDelete((snap, event) => {
+    const bankID = snap.data().bank_id;
+    return subscriptionFunctions.updateATMCount(databaseInstance, bankID);
+  });

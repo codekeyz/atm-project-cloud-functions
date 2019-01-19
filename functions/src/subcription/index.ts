@@ -1,4 +1,5 @@
 import { getBankData, getATMCount } from '../helpers';
+import * as admin from 'firebase-admin';
 
 export async function updateAllowances(
   database: FirebaseFirestore.Firestore,
@@ -36,7 +37,21 @@ export async function hasSubscription(
 ) {
   const bankData = await getBankData(database, bankId);
   const canAddNumber: number = bankData.numberOFATMCanAdd;
-  if (newATMCount <= canAddNumber) {
+  if (newATMCount < canAddNumber) {
+    return true;
+  } else if (newATMCount === canAddNumber) {
+    // Generate the payload
+    const payload = {
+      notification: {},
+      data: {
+        notificationType: 'BANK_SUBSCRIPTION',
+        ownNerID: bankId,
+        title: 'ATM Subscription',
+        message:
+          "You have exceeded the number of ATM's you can add. Buy a new package to add."
+      }
+    };
+    await admin.messaging().sendToTopic('Banks', payload);
     return true;
   } else {
     return false;
