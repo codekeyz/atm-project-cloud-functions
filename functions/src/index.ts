@@ -1,27 +1,18 @@
 import * as functions from 'firebase-functions';
 import * as admin from 'firebase-admin';
-import { hasSubscription } from './subcription/index';
-import { DatabaseRefs } from './constants';
-import { updateBankATMCount, activateATMStatus } from './helpers';
+import * as subscriptionFunctions from './subcription/index';
 
 admin.initializeApp(functions.config().firebase);
 
-export const databaseInstance = admin.database();
+const databaseInstance = admin.firestore();
 
-export const newATMCheckSubscription = functions.database
-  .ref(DatabaseRefs.atms)
+export const newSubscription = functions.firestore
+  .document('Banks/{bankID}/packages/{packageID}')
   .onCreate((snap, event) => {
-    return updateBankATMCount(event.auth.uid)
-      .then(() => {
-        return hasSubscription(event.auth.uid);
-      })
-      .then(hassub => {
-        if (hassub === true) {
-          return activateATMStatus(snap.key);
-        } else {
-          return console.log(
-            event.auth.uid + " haven't subscribed to any packge."
-          );
-        }
-      });
+    const newCanAddNumber: number = snap.data().numberOfATMS || 0;
+    return subscriptionFunctions.updateAllowances(
+      databaseInstance,
+      event.params.bankID,
+      newCanAddNumber
+    );
   });

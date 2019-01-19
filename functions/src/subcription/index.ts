@@ -1,22 +1,16 @@
-import * as admin from 'firebase-admin';
-import { getbankPackages } from '../helpers';
-import { Package } from '../models/Package';
+import { getBankData } from '../helpers';
 
-export async function hasSubscription(bankID: string) {
-  let bankPackage: Package[] = [];
-  await getbankPackages(bankID).then(data => {
-    bankPackage = data.val();
-  });
-  if (bankPackage.length === 0) {
-    return false;
-  } else {
-    bankPackage.forEach(pac => {
-      if (!pac.isActivated || pac.hasExpired) {
-        return false;
-      } else {
-        return true;
-      }
-    });
-  }
-  return false;
+export async function updateAllowances(
+  database: FirebaseFirestore.Firestore,
+  bankId: string,
+  newCanAddNumber: number
+) {
+  const bankData = await getBankData(database, bankId);
+  const newCount = bankData.numberOFATMCanAdd + newCanAddNumber;
+  const dataMap = {};
+  dataMap['numberOFATMCanAdd'] = newCount;
+  return database
+    .collection('Banks')
+    .doc(bankId)
+    .update(dataMap);
 }
